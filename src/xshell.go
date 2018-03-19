@@ -82,7 +82,7 @@ func (o *XShell) checkEcho() bool {
 			}
 		}
 		if dw {
-			fmt.Println("warning :all hosts replay message count not equal")
+			fmt.Println("warning : replay message count not equal ")
 		}
 		return true
 	}
@@ -118,11 +118,9 @@ func (o *XShell) CommandLoop() {
 }
 
 func (o *XShell) writeCommand(cmd []byte) {
-	if o.conf.WaitForReplay {
-		if o.checkEcho() == false {
-			fmt.Println("some hosts have not replay the last message!please wait!")
-			return
-		}
+	if o.conf.WaitForReplay && !o.checkEcho() {
+		fmt.Println("please wait for all host replay message received!")
+		return
 	}
 	o.clearEcho()
 	for _, v := range o.shells {
