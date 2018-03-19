@@ -8,9 +8,9 @@ xshell options [-h -i -b -w] hostslist
 -i skip known_hosts check , or use you ssh knownhosts database(~/.ssh/known_hosts)
 -b exit if any host can't connected
 -w wait all hosts replay before execute next command
-example use ssh ras key(in ~/.ssh/id_rsa): 
-xshell -i -b -w root@192.168.1.100:22 root@192.168.1.102:22
-example user user and password: 
+example use ssh ras key(in ~/.ssh/id_rsa) and (~/.ssh/known_hosts): 
+xshell -b -w root@192.168.1.100:22 root@192.168.1.102:22
+example user user and password (skip known_hosts check): 
 xshell -i -b -w root@192.168.1.100:22@password root@192.168.1.102:22@password
 
 ctrl+c will send to the remote hosts
