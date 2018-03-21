@@ -26,7 +26,7 @@ func (o *XShell) outputLoop() {
 		}
 		if bytes.Compare(buf, FAILED_NOTIFY) == 0 {
 			if o.conf.BreakOnFailed {
-				fmt.Println("have some error exit...")
+				fmt.Println("An error occurred,exit ...")
 				os.Exit(-1)
 				break
 			}
@@ -68,6 +68,13 @@ func (o *XShell) checkEcho() bool {
 	o.lock.Lock()
 	defer o.lock.Unlock()
 	if len(o.echos) != len(o.shells) {
+		fmt.Println("please wait for all host replay message received!")
+		for _, v := range o.shells {
+			_, ok := o.echos[v.host.Host]
+			if !ok {
+				fmt.Println(v.host.Host, " replay message not received!")
+			}
+		}
 		return false
 	} else {
 		dw := false
@@ -119,7 +126,6 @@ func (o *XShell) CommandLoop() {
 
 func (o *XShell) writeCommand(cmd []byte) {
 	if o.conf.WaitForReplay && !o.checkEcho() {
-		fmt.Println("please wait for all host replay message received!")
 		return
 	}
 	o.clearEcho()
