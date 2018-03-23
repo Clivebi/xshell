@@ -1,11 +1,11 @@
 package xshell
 
 import (
-	"bufio"
 	"bytes"
 	"fmt"
+	"github.com/chzyer/readline"
+	"io"
 	"os"
-	"os/signal"
 	"strings"
 	"sync"
 )
@@ -101,27 +101,40 @@ func (o *XShell) clearEcho() {
 	o.echos = make(map[string]int)
 }
 
-func (o *XShell) CommandLoop() {
-	r := bufio.NewReader(os.Stdin)
-	c := make(chan os.Signal, 1)
-	signal.Notify(c, os.Interrupt, os.Kill)
-	go func() {
-		for {
-			<-c
-			o.writeCommand([]byte{0x3})
-		}
-	}()
+func (o *XShell) CommandLoop() error {
+	path, _ := Home()
+	path += "/.xshell_history"
+	l, err := readline.NewEx(&readline.Config{
+		Prompt:            "",
+		HistoryFile:       path,
+		InterruptPrompt:   "ctrl+C",
+		EOFPrompt:         "exit",
+		HistorySearchFold: true,
+	})
+	if err != nil {
+		return err
+	}
+	defer l.Close()
 	for {
-		l, err := r.ReadString('\n')
-		if err != nil {
-			break
+		line, err := l.Readline()
+		if err == readline.ErrInterrupt {
+			if len(line) == 0 {
+				o.writeCommand([]byte{0x3})
+			}
+			continue
+		} else if err == io.EOF {
+			continue
 		}
-		if strings.ToLower(l) == "xshell-exit\n" {
+		if len(line) == 0 || line[len(line)-1] != '\n' {
+			line += "\n"
+		}
+		if strings.ToLower(line) == "xshell-exit\n" {
 			fmt.Println("~Bye~")
 			break
 		}
-		o.writeCommand([]byte(l))
+		o.writeCommand([]byte(line))
 	}
+	return nil
 }
 
 func (o *XShell) writeCommand(cmd []byte) {
