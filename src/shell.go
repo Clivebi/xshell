@@ -48,13 +48,13 @@ func (o *Shell) prepareAuthMethod() ([]ssh.AuthMethod, error) {
 }
 
 func (o *Shell) failed(err error) {
-	t := o.host.Host + " " + err.Error() + "\n"
+	t := "\033[31m" + o.host.Host + " " + err.Error() + "\033[0m\n"
 	o.Stdout.Write([]byte(t))
 	o.Stdout.Write(FAILED_NOTIFY)
 }
 
 func (o *Shell) Write(p []byte) (n int, err error) {
-	t := o.host.Host + " " + string(p)
+	t := "\033[34m" + o.host.Host + " \033[0m" + string(p)
 	o.Stdout.Src <- []byte(t)
 	return len(p), nil
 }

@@ -22,6 +22,8 @@ how to build
 
 2 go get -u golang.org/x/crypto/ssh
 
-3 go build -ldflags "-w -s" xshell.go
+3 go get -u github.com/chzyer/readline
+
+4 go build -ldflags "-w -s" xshell.go
 
 

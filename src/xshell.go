@@ -26,7 +26,7 @@ func (o *XShell) outputLoop() {
 		}
 		if bytes.Compare(buf, FAILED_NOTIFY) == 0 {
 			if o.conf.BreakOnFailed {
-				fmt.Println("An error occurred,exit ...")
+				fmt.Println("\033[31mAn error occurred,exit ...\033[0m")
 				os.Exit(-1)
 				break
 			}
@@ -45,13 +45,14 @@ func (o *XShell) outputLoop() {
 
 func (o *XShell) parseEcho(msg string) {
 	ls := strings.Split(msg, " ")
-	if len(ls) < 1 {
+	if len(ls) < 1 || len(ls[0]) < 5 {
 		return
 	}
+	ch := ls[0][5:]
 	host := ""
 	for _, v := range o.shells {
-		if v.host.Host == ls[0] {
-			host = ls[0]
+		if v.host.Host == ch {
+			host = ch
 			break
 		}
 	}
@@ -68,11 +69,11 @@ func (o *XShell) checkEcho() bool {
 	o.lock.Lock()
 	defer o.lock.Unlock()
 	if len(o.echos) != len(o.shells) {
-		fmt.Println("please wait for all host replay message received!")
+		fmt.Println("\033[31mplease wait for all host replay message received!\033[0m")
 		for _, v := range o.shells {
 			_, ok := o.echos[v.host.Host]
 			if !ok {
-				fmt.Println(v.host.Host, " replay message not received!")
+				fmt.Println(v.host.Host, "\033[31mreplay message not received!\033[0m")
 			}
 		}
 		return false
@@ -89,7 +90,7 @@ func (o *XShell) checkEcho() bool {
 			}
 		}
 		if dw {
-			fmt.Println("warning : replay message count not equal ")
+			fmt.Println("\033[33mwarning : replay message count not equal\033[0m")
 		}
 		return true
 	}
